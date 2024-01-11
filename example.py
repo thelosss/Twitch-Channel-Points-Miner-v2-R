@@ -12,6 +12,10 @@ from TwitchChannelPointsMiner.classes.Pushover import Pushover
 from TwitchChannelPointsMiner.classes.Settings import Priority, Events, FollowersOrder
 from TwitchChannelPointsMiner.classes.entities.Bet import Strategy, BetSettings, Condition, OutcomeKeys, FilterCondition, DelayMode
 from TwitchChannelPointsMiner.classes.entities.Streamer import Streamer, StreamerSettings
+import os
+from keep_alive import keep_alive
+
+keep_alive()
 
 twitch_miner = TwitchChannelPointsMiner(
     username="your-twitch-username",
