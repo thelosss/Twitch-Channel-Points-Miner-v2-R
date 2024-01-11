@@ -14,7 +14,6 @@ from TwitchChannelPointsMiner.classes.entities.Bet import Strategy, BetSettings,
 from TwitchChannelPointsMiner.classes.entities.Streamer import Streamer, StreamerSettings
 import os
 from keep_alive import keep_alive
-
 keep_alive()
 
 twitch_miner = TwitchChannelPointsMiner(
