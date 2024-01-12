@@ -388,6 +388,20 @@ twitch_miner.mine(
                                          filter_condition=FilterCondition(
                                            by=OutcomeKeys.TOTAL_POINTS,
                                            where=Condition.GTE,
+                                           value=800)))),
+    Streamer("calmmunessu",
+             settings=StreamerSettings(make_predictions=False,
+                                       follow_raid=True,
+                                       claim_drops=True,
+                                       bet=BetSettings(
+                                         strategy=Strategy.PERCENTAGE,
+                                         percentage=5,
+                                         stealth_mode=False,
+                                         percentage_gap=20,
+                                         max_points=1234,
+                                         filter_condition=FilterCondition(
+                                           by=OutcomeKeys.TOTAL_POINTS,
+                                           where=Condition.GTE,
                                            value=800))))
     ],                                  # Array of streamers (order = priority)
     followers=False,                    # Automatic download the list of your followers
