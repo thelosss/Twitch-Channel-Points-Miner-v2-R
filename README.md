@@ -29,7 +29,7 @@
 
 > It can wait for a streamer to go live (+_450 points_ when the stream starts), it will automatically click the bonus button (_+50 points_), and it will follow raids (_+250 points_).
 
-Read more about channels point [here](https://help.twitch.tv/s/article/channel-points-guide).
+Read more about the channel points [here](https://help.twitch.tv/s/article/channel-points-guide).
 
 # README Contents
 1. 🤝 [Community](#community)
@@ -63,10 +63,6 @@ Read more about channels point [here](https://help.twitch.tv/s/article/channel-p
 If you want to help with this project, please leave a star 🌟 and share it with your friends! 😎
 
 If you want to offer me a coffee, I would be grateful! ❤️
-
-|                                                                                                                                                                                                                                                                                                           |
-|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-|<a href="https://www.buymeacoffee.com/davydov" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/lato-yellow.png" alt="Buy Me A Coffee (rdavydov)" height="41" width="174"></a>|
 
 |                                                                                                                                                                                                                                                                                                           |                                               |
 |-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------|
@@ -196,6 +192,7 @@ from TwitchChannelPointsMiner import TwitchChannelPointsMiner
 from TwitchChannelPointsMiner.logger import LoggerSettings, ColorPalette
 from TwitchChannelPointsMiner.classes.Chat import ChatPresence
 from TwitchChannelPointsMiner.classes.Discord import Discord
+from TwitchChannelPointsMiner.classes.Webhook import Webhook
 from TwitchChannelPointsMiner.classes.Telegram import Telegram
 from TwitchChannelPointsMiner.classes.Settings import Priority, Events, FollowersOrder
 from TwitchChannelPointsMiner.classes.entities.Bet import Strategy, BetSettings, Condition, OutcomeKeys, FilterCondition, DelayMode
@@ -208,7 +205,7 @@ twitch_miner = TwitchChannelPointsMiner(
     priority=[                                  # Custom priority in this case for example:
         Priority.STREAK,                        # - We want first of all to catch all watch streak from all streamers
         Priority.DROPS,                         # - When we don't have anymore watch streak to catch, wait until all drops are collected over the streamers
-        Priority.ORDER                          # - When we have all of the drops claimed and no watch-streak available, use the order priority (POINTS_ASCENDING, POINTS_DESCEDING)
+        Priority.ORDER                          # - When we have all of the drops claimed and no watch-streak available, use the order priority (POINTS_ASCENDING, POINTS_DESCENDING)
     ],
     enable_analytics=False,			# Disables Analytics if False. Disabling it significantly reduces memory consumption
     disable_ssl_cert_verification=False,	# Set to True at your own risk and only to fix SSL: CERTIFICATE_VERIFY_FAILED error
@@ -240,19 +237,25 @@ twitch_miner = TwitchChannelPointsMiner(
             events=[Events.STREAMER_ONLINE, Events.STREAMER_OFFLINE,
                     Events.BET_LOSE, Events.CHAT_MENTION],					                         # Only these events will be sent to the chat
         ),
+        webhook=Webhook(
+            endpoint="https://example.com/webhook",                                                                    # Webhook URL
+            method="GET",                                                                   # GET or POST
+            events=[Events.STREAMER_ONLINE, Events.STREAMER_OFFLINE,
+                    Events.BET_LOSE, Events.CHAT_MENTION],                                  # Only these events will be sent to the endpoint
+        ),
         matrix=Matrix(
             username="twitch_miner",                                                   # Matrix username (without homeserver)
             password="...",                                                            # Matrix password
             homeserver="matrix.org",                                                   # Matrix homeserver
             room_id="...",                                                             # Room ID
-            events=[Events.STREAMER_ONLINE, Events.STREAMER_OFFLINE, Events.BET_LOSE], # Only these events will be sent to the chat
+            events=[Events.STREAMER_ONLINE, Events.STREAMER_OFFLINE, Events.BET_LOSE], # Only these events will be sent
         ),
         pushover=Pushover(
-            userkey="YOUR-ACCOUNT-TOKEN",                                             # Login to https://pushover.net/, the user token is on the main page.
-            token="YOUR-APPLICATION-TOKEN",                                           # Create a application on the website, and use the token shown in your application.
+            userkey="YOUR-ACCOUNT-TOKEN",                                             # Login to https://pushover.net/, the user token is on the main page
+            token="YOUR-APPLICATION-TOKEN",                                           # Create a application on the website, and use the token shown in your application
             priority=0,                                                               # Read more about priority here: https://pushover.net/api#priority
             sound="pushover",                                                         # A list of sounds can be found here: https://pushover.net/api#sounds
-            events=[Events.CHAT_MENTION, Events.DROP_CLAIM],                          # Only these events will be sent.
+            events=[Events.CHAT_MENTION, Events.DROP_CLAIM],                          # Only these events will be sent
         )
     ),
     streamer_settings=StreamerSettings(
@@ -418,14 +421,14 @@ Make sure to write the streamers array in order of priority from left to right. 
 
 ## Settings
 Most of the settings are self-explained and are commented on in the example.
-You can watch only two streamers per time. With `priority` settings, you can select which streamers watch by use priority. You can use an array of priority or single item. I suggest using at least one priority from `ORDER`, `POINTS_ASCENDING`, `POINTS_DESCEDING` because, for example, If you set only `STREAK` after catch all watch streak, the script will stop to watch streamers.
+You can watch only two streamers per time. With `priority` settings, you can select which streamers watch by use priority. You can use an array of priority or single item. I suggest using at least one priority from `ORDER`, `POINTS_ASCENDING`, `POINTS_DESCENDING` because, for example, If you set only `STREAK` after catch all watch streak, the script will stop to watch streamers.
 Available values are the following:
  - `STREAK` - Catch the watch streak from all streamers
  - `DROPS` - Claim all drops from streamers with drops tags enabled
  - `SUBSCRIBED` - Prioritize streamers you're subscribed to (higher subscription tiers are mined first)
  - `ORDER` - Following the order of the list
  - `POINTS_ASCENDING` - On top the streamers with the lowest points
- - `POINTS_DESCEDING` - On top the streamers with the highest points
+ - `POINTS_DESCENDING` - On top the streamers with the highest points
 
 You can combine all priority but keep in mind that use `ORDER` and `POINTS_ASCENDING` in the same settings doesn't make sense.
 
@@ -513,6 +516,24 @@ Discord(
 )
 ```
 
+#### Generic Webhook
+You can use generic webhook 
+
+| Key                	 | Type            	| Default 	| Description                                                        |
+|----------------------- |------------------|-----------|------------------------------------------------------------------- |
+| `endpoint`             | string        	|           | webhook url                                                        | 
+| `method`               | string        	|           | `POST` or `GET`                                                    |
+| `events`   	         | list             |       	| Only these events will be sent to the endpoint. Array of Event. or str |
+
+```python
+Webhook(
+   endpoint="https://example.com/webhook",
+   method="GET",
+   events=[Events.STREAMER_ONLINE, Events.STREAMER_OFFLINE,
+                    Events.BET_LOSE, Events.CHAT_MENTION],
+)
+```
+
 
 #### Events
  - `STREAMER_ONLINE`
@@ -569,6 +590,14 @@ Allowed values for `chat` are:
 - **PERCENTAGE**: Select the option with the highest percentage based on odds (It's the same that show Twitch) - Should be the same as select LOWEST_ODDS
 - **SMART_MONEY**: Select the option with the highest points placed. [#331](https://github.com/Tkd-Alex/Twitch-Channel-Points-Miner-v2/issues/331)
 - **SMART**: If the majority in percent chose an option, then follow the other users, otherwise select the option with the highest odds
+- **NUMBER_1**: Always select the 1st option, BLUE side if there are only two options
+- **NUMBER_2**: Always select the 2nd option, PINK side if there are only two options
+- **NUMBER_3**: Always select the 3rd option
+- **NUMBER_4**: Always select the 4th option
+- **NUMBER_5**: Always select the 5th option
+- **NUMBER_6**: Always select the 6th option
+- **NUMBER_7**: Always select the 7th option
+- **NUMBER_8**: Always select the 8th option
 
 ![Screenshot](https://raw.githubusercontent.com/Tkd-Alex/Twitch-Channel-Points-Miner-v2/master/assets/prediction.png)
 
